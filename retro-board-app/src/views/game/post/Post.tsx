@@ -121,7 +121,7 @@ const PostItem = ({
                 <DragIndicator />
               </DragHandle>
             ) : null}
-            <CardContent>
+            <StyledCardContent color={color}>
               <Typography variant="body1">
                 <EditableLabel
                   readOnly={!canEdit}
@@ -157,7 +157,7 @@ const PostItem = ({
                   <img src={giphyImageUrl} alt="Giphy" height="200px" />
                 </GiphyContainer>
               )}
-            </CardContent>
+            </StyledCardContent>
             {displayAction && canCreateAction && (
               <CardContent className={classes.actionContainer}>
                 <Typography variant="caption">{translations.title}:</Typography>
@@ -297,12 +297,15 @@ const PostCard = styled(Card)`
   margin: 10px 5px;
   margin-bottom: 20px;
   position: relative;
-
   :hover {
     ${DragHandle} {
       visibility: visible;
     }
   }
+`;
+
+const StyledCardContent = styled(CardContent)`
+  color: ${({color}) => color}
 `;
 
 const AuthorContainer = styled.div`

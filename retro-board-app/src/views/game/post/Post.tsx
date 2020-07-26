@@ -305,7 +305,7 @@ const PostCard = styled(Card)`
 `;
 
 const StyledCardContent = styled(CardContent)`
-  color: ${({color}) => color}
+  background-color: ${({color}) => color}
 `;
 
 const AuthorContainer = styled.div`

@@ -32,6 +32,10 @@ const config: Configuration = {
   GOOGLE_SECRET: process.env.GOOGLE_SECRET!,
   GITHUB_KEY: process.env.GITHUB_KEY!,
   GITHUB_SECRET: process.env.GITHUB_SECRET!,
+  JIRA_SERVER: process.env.JIRA_SERVER!,
+  JIRA_KEY: process.env.JIRA_KEY!,
+  JIRA_PROJECT_KEY: process.env.JIRA_PROJECT_KEY!,
+  JIRA_EPIC_LINK: process.env.JIRA_EPIC_LINK!,
 };
 
 export default config;

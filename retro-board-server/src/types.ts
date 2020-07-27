@@ -71,4 +71,8 @@ export interface Configuration {
   GOOGLE_SECRET: string;
   GITHUB_KEY: string;
   GITHUB_SECRET: string;
+  JIRA_SERVER: string;
+  JIRA_KEY: string;
+  JIRA_PROJECT_KEY: string;
+  JIRA_EPIC_LINK: string;
 }

@@ -14,6 +14,7 @@ import authRouter from './auth/router';
 import session from 'express-session';
 import game from './game';
 import { getUser } from './utils';
+import {createTicket} from './jira'
 import {
   initSentry,
   setupSentryErrorHandler,
@@ -115,6 +116,24 @@ db().then((store) => {
           .send('You must be logged in in order to create a session');
       }
     });
+  });
+
+  app.post('/api/jira/ticket', async (req, res) => {
+    try{
+      const ticket = await createTicket(req);
+      setScope(async (scope) => {
+        if (ticket) {
+            res.status(200).send(ticket);
+        } else {
+          res
+            .status(401)
+            .send('You must be logged in in order to create a session');
+        }
+      });
+    } catch(err) {
+      res.status(500).send();
+      throw err;
+    }  
   });
 
   app.post('/api/create-custom', async (req, res) => {

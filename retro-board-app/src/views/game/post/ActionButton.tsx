@@ -1,5 +1,6 @@
 import React from 'react';
-import { Tooltip, Button } from '@material-ui/core';
+import { Tooltip, Button} from '@material-ui/core';
+import { fade} from '@material-ui/core/styles/colorManipulator';
 
 interface ActionButtonProps {
   tooltip: React.ReactElement | string | number;
@@ -35,7 +36,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           aria-label={ariaLabel}
           tabIndex={-1}
           innerRef={innerRef}
-          style={{ position: 'relative' }}
+          style={{ position: 'relative', color: disabled ? fade('rgba( 255, 255, 255, 1)', 0.6) : 'white' }}
         >
           {icon}
           {children !== undefined ? <>&nbsp;{children}</> : null}

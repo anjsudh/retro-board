@@ -67,6 +67,10 @@ services:
       GOOGLE_SECRET:
       GITHUB_KEY:
       GITHUB_SECRET:
+      JIRA_SERVER: 
+      JIRA_KEY: 
+      JIRA_PROJECT_KEY: 
+      JIRA_EPIC_LINK: 
       BASE_URL: http://localhost:80 # This must be the URL of the frontend app once deployed
     restart: unless-stopped
     logging:

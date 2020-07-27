@@ -60,16 +60,23 @@ const ColumnEditor = ({ value, defaults, onChange }: ColumnEditorProps) => {
               <PickerContainer>
                 <TwitterPicker
                   colors={[
-                    '#E8F5E9',
-                    '#FFEBEE',
-                    '#FFFDE7',
-                    '#BBDEFB',
-                    '#E1BEE7',
-                    '#FFE0B2',
-                    '#FFCCBC',
-                    '#B2EBF2',
-                    '#D7CCC8',
-                    '#CFD8DC',
+                    '#ef5350',
+                    '#ec407a',
+                    '#ab47bc',
+                    '#7e57c2',
+                    '#5c6bc0',
+                    '#42a5f5',
+                    '#29b6f6',
+                    '#26c6da',
+                    '#66bb6a',
+                    '#9ccc65',
+                    '#d4e157',
+                    '#26a69a',
+                    '#ffca28',
+                    '#ffa726',
+                    '#ff7043',
+                    '#bdbdbd',
+                    '#78909c',
                   ]}
                   triangle="hide"
                   color={value.color || defaults.color}

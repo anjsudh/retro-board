@@ -76,6 +76,7 @@ const EditableLabel = ({
         <EditMode>
           {multiline ? (
             <TextareaAutosize
+            style={{'color':'white'}}
               ref={inputRef as React.RefObject<HTMLTextAreaElement>}
               aria-label={`${label} input`}
               value={current}
@@ -85,6 +86,7 @@ const EditableLabel = ({
             />
           ) : (
             <input
+            style={{'color':'white'}}
               ref={inputRef as React.RefObject<HTMLInputElement>}
               aria-label={`${label} input`}
               value={current}
@@ -123,7 +125,7 @@ const ViewMode = styled.span`
 
   &:hover {
     > svg {
-      color: ${colors.purple[500]};
+      color: white;
     }
   }
 `;
@@ -154,7 +156,7 @@ const EditMode = styled.span<CenteredProp>`
 const EditIcon = styled(Edit)`
   position: relative;
   top: 2px;
-  color: ${colors.grey[500]};
+  color: white;
 `;
 
 const InvisibleEditIcon = styled(EditIcon)`

@@ -56,6 +56,7 @@ describe('Post', () => {
         onEdit={noop}
         onLike={noop}
         onEditAction={noop}
+        onCreateJira={noop}
         color="#123456"
       />
     );
@@ -77,6 +78,7 @@ describe('Post', () => {
         onEdit={noop}
         onLike={likeHandler}
         onEditAction={noop}
+        onCreateJira={noop}
         color="#123456"
       />
     );
@@ -117,6 +119,7 @@ describe('Post', () => {
         onEdit={noop}
         onLike={likeHandler}
         onEditAction={noop}
+        onCreateJira={noop}
         color="#123456"
       />
     );
@@ -152,6 +155,7 @@ describe('Post', () => {
         onEdit={editHandler}
         onEditAction={noop}
         onLike={noop}
+        onCreateJira={noop}
         color="#123456"
       />
     );
@@ -182,6 +186,7 @@ describe('Post', () => {
         onEdit={editHandler}
         onEditAction={noop}
         onLike={noop}
+        onCreateJira={noop}
         color="#123456"
       />
     );

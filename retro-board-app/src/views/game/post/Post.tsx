@@ -7,6 +7,9 @@ import {
   Card,
   CardContent,
   colors,
+  darken,
+  fade,
+  CircularProgress,
 } from '@material-ui/core';
 import {
   ThumbUpOutlined,
@@ -16,9 +19,12 @@ import {
   Feedback,
   Close,
   EmojiEmotions,
-  DragIndicator,
+  DragIndicator, 
   InsertPhotoTwoTone,
 } from '@material-ui/icons';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import AddIcon from '@material-ui/icons/Add';
+import CancelIcon from '@material-ui/icons/Cancel';
 import { Draggable, DraggableProvided } from 'react-beautiful-dnd';
 import useTranslations from '../../../translations';
 import EditableLabel from '../../../components/EditableLabel';
@@ -28,6 +34,7 @@ import { useUserPermissions } from '../useUserPermissions';
 import { countVotes, enumerateVotes } from '../utils';
 import GiphySearchBox from 'react-giphy-searchbox';
 import useGiphy from '../../../hooks/useGiphy';
+import {createTicket} from '../../../hooks/jira';
 import config from '../../../utils/getConfig';
 import useToggle from '../../../hooks/useToggle';
 import VoteButton from './VoteButton';
@@ -48,9 +55,6 @@ interface PostItemProps {
 }
 
 const useStyles = makeStyles((theme) => ({
-  actionContainer: {
-    backgroundColor: theme.palette.grey[100],
-  },
   actionIcon: {
     color: theme.palette.primary.main,
   },
@@ -58,6 +62,14 @@ const useStyles = makeStyles((theme) => ({
     color: colors.yellow[700],
   },
 }));
+
+enum JiraCreationStatus {
+  PENDING_JIRA_CREATION=0, 
+  JIRA_CREATION_INPROGRESS=1, 
+  JIRA_CREATION_SUCCESS=2, 
+  JIRA_CREATION_FAILED=3, 
+  CLEARED_JIRA_CREATION_STATUS=4
+}
 
 const PostItem = ({
   index,
@@ -68,7 +80,7 @@ const PostItem = ({
   onEdit,
   onEditAction,
   onEditGiphy,
-  onDelete,
+  onDelete
 }: PostItemProps) => {
   const {
     canCreateAction,
@@ -87,12 +99,59 @@ const PostItem = ({
   );
   const postElement = useRef(null);
   const [actionsToggled, toggleAction] = useToggle(false);
+  const [jiraCreationStatus, setJiraCreationStatus] = useState<JiraCreationStatus>(JiraCreationStatus.PENDING_JIRA_CREATION);
   const [showGiphyEditor, setShowGiphyEditor] = useState(false);
   const upVotes = useMemo(() => countVotes(post, 'like'), [post]);
   const downVotes = useMemo(() => countVotes(post, 'dislike'), [post]);
   const upVoters = useMemo(() => enumerateVotes(post, 'like'), [post]);
   const downVoters = useMemo(() => enumerateVotes(post, 'dislike'), [post]);
   const displayAction = actionsToggled || !!post.action;
+  
+  const renderJiraCreationButton = (status: JiraCreationStatus) => {
+    switch (status) {
+      case JiraCreationStatus.JIRA_CREATION_INPROGRESS:
+        return <span style={{ verticalAlign: "bottom", padding: "6px", margin: "4px", fontSize: "14px", fontWeight: 500 }} >
+                <CircularProgress style={{ verticalAlign: "text-bottom", marginBottom: "0px", width: "16px", height: "16px", paddingRight: "2px", color:"white"}} />&nbsp; ADDING TICKET ...
+              </span>
+      case JiraCreationStatus.JIRA_CREATION_SUCCESS:
+        return <span style={{ verticalAlign: "bottom", padding: "6px", margin: "4px", fontSize: "14px", fontWeight: 500 }} >
+                <CheckCircleIcon style={{ verticalAlign: "text-bottom", marginBottom: "0px", width: "16px", height: "16px", paddingRight: "2px", }} /> TICKET ADDED!
+              </span>
+      case JiraCreationStatus.JIRA_CREATION_FAILED:
+        return <span style={{ verticalAlign: "bottom", padding: "6px", margin: "4px", fontSize: "14px", fontWeight: 500 }} >
+                <CancelIcon style={{ verticalAlign: "text-bottom", marginBottom: "0px", width: "16px", height: "16px", paddingRight: "2px", }} /> TICKET CREATION FAILED!
+              </span>
+      case JiraCreationStatus.PENDING_JIRA_CREATION:
+        return <ActionButton
+          ariaLabel={"Add to Jira"}
+          tooltip={"Add to Jira"}
+          icon={<AddIcon />}
+          onClick={() => {
+            setJiraCreationStatus(JiraCreationStatus.JIRA_CREATION_INPROGRESS);
+            createTicket(post)
+              .then(jira => {
+                setJiraCreationStatus(JiraCreationStatus.JIRA_CREATION_SUCCESS);
+              }).catch(e => {
+                setJiraCreationStatus(JiraCreationStatus.JIRA_CREATION_FAILED);
+              }).finally(() => {
+                setTimeout(() => { setJiraCreationStatus(JiraCreationStatus.CLEARED_JIRA_CREATION_STATUS); }, 5000);
+              })
+          }}
+        >
+          Add to Jira
+        </ActionButton>
+      default:
+        return <span
+          style={{
+            verticalAlign: "bottom",
+            padding: "6px",
+            margin: "6px",
+            fontSize: "14px",
+            fontWeight: 500
+          }}
+        >&nbsp;</span>
+    }
+  }
   const handleShowGiphy = useCallback(() => {
     setShowGiphyEditor(true);
     trackEvent('game/post/giphy/open');
@@ -159,7 +218,7 @@ const PostItem = ({
               )}
             </StyledCardContent>
             {displayAction && canCreateAction && (
-              <CardContent className={classes.actionContainer}>
+              <StyledCardContent color={darken(color, 0.05)}>
                 <Typography variant="caption">{translations.title}:</Typography>
                 <Typography variant="body1">
                   <EditableLabel
@@ -170,7 +229,16 @@ const PostItem = ({
                     multiline
                   />
                 </Typography>
-              </CardContent>
+            
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center"
+                  }}>
+                  {renderJiraCreationButton(jiraCreationStatus)} 
+                  </div>
+              
+              </StyledCardContent>
             )}
             <ActionsBar
               color={color}
@@ -187,7 +255,7 @@ const PostItem = ({
                       tooltip={postTranslations.deleteButton!}
                       icon={
                         <DeleteForeverOutlined
-                          style={{ color: Palette.negative }}
+                          style={{ color: 'white' }}
                         />
                       }
                       onClick={onDelete}
@@ -199,9 +267,9 @@ const PostItem = ({
                       tooltip={postTranslations.setActionButton!}
                       icon={
                         post.action ? (
-                          <Feedback className={classes.actionIcon} />
+                          <Feedback className={classes.actionIcon} style={{ color: 'white' }} />
                         ) : (
-                          <FeedbackOutlined className={classes.actionIcon} />
+                          <FeedbackOutlined className={classes.actionIcon} style={{ color: 'white' }} />
                         )
                       }
                       onClick={toggleAction}
@@ -211,7 +279,7 @@ const PostItem = ({
                     <ActionButton
                       ariaLabel={postTranslations.setGiphyButton!}
                       tooltip={postTranslations.setGiphyButton!}
-                      icon={<EmojiEmotions className={classes.ghipyIcon} />}
+                      icon={<EmojiEmotions className={classes.ghipyIcon} style={{ color: 'white' }} />}
                       innerRef={postElement}
                       onClick={handleShowGiphy}
                     />
@@ -223,7 +291,7 @@ const PostItem = ({
                 voters={upVoters}
                 canVote={canUpVote}
                 count={upVotes}
-                icon={<ThumbUpOutlined style={{ color: Palette.positive }} />}
+                icon={<ThumbUpOutlined style={{ position: 'relative', color: !canUpVote ? fade('rgba( 255, 255, 255, 1)', 0.6) : 'white' }} />}
                 onClick={onLike}
                 showTooltip={canShowAuthor}
                 ariaLabel="Like"
@@ -232,7 +300,7 @@ const PostItem = ({
                 voters={downVoters}
                 canVote={canDownVote}
                 count={downVotes}
-                icon={<ThumbDownOutlined style={{ color: Palette.negative }} />}
+                icon={<ThumbDownOutlined style={{ position: 'relative', color: !canDownVote ? fade('rgba( 255, 255, 255, 1)', 0.6) : 'white' }} />}
                 onClick={onDislike}
                 showTooltip={canShowAuthor}
                 ariaLabel="Dislike"
@@ -290,7 +358,7 @@ const DragHandle = styled.div`
   top: 3px;
   right: 3px;
   visibility: hidden;
-  color: ${colors.grey[500]};
+  color: white;
 `;
 
 const PostCard = styled(Card)`
@@ -305,7 +373,8 @@ const PostCard = styled(Card)`
 `;
 
 const StyledCardContent = styled(CardContent)`
-  background-color: ${({color}) => color}
+  background-color: ${({color}) => color};
+  color: white
 `;
 
 const AuthorContainer = styled.div`
